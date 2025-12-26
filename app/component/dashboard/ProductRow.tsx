@@ -1,5 +1,5 @@
 export default function ProductRow({ title }: { title: string }) {
-  const items = Array.from({ length: 4 });
+  const items = Array.from({ length: 12 });
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-8">
