@@ -1,0 +1,34 @@
+import Link from "next/link";
+
+export default function TopBar() {
+  return (
+    <header className="sticky top-0 z-20 border-b bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-8">
+          <Link href="/auth/dashboard" className="text-lg font-bold">
+            EverBlue
+          </Link>
+
+          <nav className="hidden items-center gap-5 text-sm text-slate-700 md:flex">
+            <Link href="#" className="hover:underline">For Women</Link>
+            <Link href="#" className="hover:underline">For Men</Link>
+            <Link href="#" className="hover:underline">New</Link>
+            <Link href="#" className="hover:underline">Special Collections</Link>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-3 text-sm">
+          <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
+            Profile
+          </button>
+          <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
+            Favorite
+          </button>
+          <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
+            Cart (2)
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
