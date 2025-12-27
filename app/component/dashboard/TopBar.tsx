@@ -1,6 +1,9 @@
+"use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function TopBar() {
+  const router = useRouter();
   return (
     <header className="sticky top-0 z-20 border-b bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -18,14 +21,16 @@ export default function TopBar() {
         </div>
 
         <div className="flex items-center text-black gap-3 text-sm">
-          <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
+          <button 
+            onClick={() => router.push('/login')}
+            className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
             Profile
           </button>
           <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
             Favorite
           </button>
           <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
-            Cart (2)
+            Cart
           </button>
         </div>
       </div>
