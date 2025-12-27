@@ -9,7 +9,11 @@ export default function Home() {
     style={{
         backgroundImage: "url('/images/image.png')",
       }}>
-      <h1 className="text-3xl font-bold">EverBlue</h1>
+      <h1 className="text-3xl font-bold"> </h1>
+      <button
+          onClick={() => router.push('/login')}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >Browse as Guest</button>
 
       <div className="flex gap-4">
         <button
