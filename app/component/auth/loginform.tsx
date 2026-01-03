@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchema } from "../../lib/validations/auth.schema";
@@ -10,6 +11,8 @@ import Button from "../ui/button";
 
 export default function LoginForm() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -19,16 +22,38 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-    const onSubmit = (data: LoginSchema) => {
-    console.log("Login data (dummy):", data);
+  const onSubmit = async (data: LoginSchema) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const res = await fetch(`${base}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
 
-    // Temporary redirect after login
-    router.push("/auth/dashboard");
-    };
-
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) {
+        // save token and redirect
+        if (body.token) {
+          try { localStorage.setItem("token", body.token); } catch {}
+        }
+        router.push("/auth/dashboard");
+      } else {
+        setError(body?.message || `Login failed (status ${res.status})`);
+      }
+    } catch (err: any) {
+      setError(err?.message || "Network error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error && <div className="text-sm text-red-600">{error}</div>}
+
       <Input
         label="Email"
         type="email"
@@ -43,7 +68,7 @@ export default function LoginForm() {
         error={errors.password?.message}
       />
 
-      <Button type="submit">Login</Button>
+      <Button type="submit" disabled={loading}>{loading ? "Signing in..." : "Login"}</Button>
       <p className="text-center text-sm text-slate-600">
         Don’t have an account?{" "}
         <a href="/register" className="font-medium text-blue-600 hover:underline">

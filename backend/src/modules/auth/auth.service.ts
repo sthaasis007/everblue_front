@@ -38,10 +38,10 @@ export const AuthService = {
       return { ok: false, status: 401, message: "Invalid credentials" };
     }
 
-    const secret: import("jsonwebtoken").Secret = process.env.JWT_SECRET!;
+    const secret = process.env.JWT_SECRET || "change_me_local_secret";
     const expiresIn = process.env.JWT_EXPIRES_IN || "1d";
 
-    const token = jwt.sign(
+    const token = (jwt.sign as any)(
       { sub: user._id.toString(), email: user.email, role: user.role },
       secret,
       { expiresIn }
