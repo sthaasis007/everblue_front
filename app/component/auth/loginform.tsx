@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchema } from "../../lib/validations/auth.schema";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 import Input from "../ui/input";
 import Button from "../ui/button";
@@ -35,16 +36,19 @@ export default function LoginForm() {
 
       const body = await res.json().catch(() => ({}));
       if (res.ok) {
-        // save token and redirect
+        // save token and user data in cookies
         if (body.token) {
-          try { localStorage.setItem("token", body.token); } catch {}
+          Cookies.set("token", body.token, { expires: 1 }); // expires in 1 day
+        }
+        if (body.user) {
+          Cookies.set("user", JSON.stringify(body.user), { expires: 1 });
         }
         router.push("/auth/dashboard");
       } else {
         setError(body?.message || `Login failed (status ${res.status})`);
       }
-    } catch (err: any) {
-      setError(err?.message || "Network error");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Network error");
     } finally {
       setLoading(false);
     }

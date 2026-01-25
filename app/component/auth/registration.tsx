@@ -40,8 +40,8 @@ export default function RegisterForm() {
       } else {
         setError(body?.message || `Registration failed (status ${res.status})`);
       }
-    } catch (err: any) {
-      setError(err?.message || "Network error");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Network error");
     } finally {
       setLoading(false);
     }
