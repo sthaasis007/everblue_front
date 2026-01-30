@@ -20,7 +20,7 @@
 }
 
 body {
-  background: var(--background) url('/images/hbg.png') no-repeat center/cover;
+  background: var(--background) url('/images/image.png') no-repeat center/cover;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
