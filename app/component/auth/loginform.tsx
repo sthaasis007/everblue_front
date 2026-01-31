@@ -43,7 +43,21 @@ export default function LoginForm() {
         if (body.user) {
           Cookies.set("user", JSON.stringify(body.user), { expires: 1 });
         }
-        router.push("/auth/dashboard");
+        // also set localStorage so client-side hooks can read token/user
+        try {
+          if (body.token) localStorage.setItem("token", body.token);
+          if (body.user) localStorage.setItem("user", JSON.stringify(body.user));
+        } catch (e) {
+          // ignore (SSR or disabled storage)
+        }
+
+        // redirect based on role
+        const role = body?.user?.role;
+        if (role === "admin") {
+          router.push("/admin/users");
+        } else {
+          router.push("/auth/dashboard");
+        }
       } else {
         setError(body?.message || `Login failed (status ${res.status})`);
       }
