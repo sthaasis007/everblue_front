@@ -1,37 +1,9 @@
 import { Request, Response } from "express";
-import { registerDto, loginDto } from "./auth.dto";
-import { AuthService } from "./auth.service";
 import bcrypt from "bcryptjs";
-import { AuthRepository } from "./auth.repository";
+import { AuthRepository } from "../auth/auth.repository";
 
-export const AuthController = {
-  async register(req: Request, res: Response) {
-    const parsed = registerDto.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({
-        message: "Validation error",
-        errors: parsed.error.flatten().fieldErrors,
-      });
-    }
-
-    const result = await AuthService.register(parsed.data);
-    return res.status(result.status).json(result);
-  },
-
-  async login(req: Request, res: Response) {
-    const parsed = loginDto.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({
-        message: "Validation error",
-        errors: parsed.error.flatten().fieldErrors,
-      });
-    }
-
-    const result = await AuthService.login(parsed.data);
-    return res.status(result.status).json(result);
-  },
-
-  async createUser(req: Request, res: Response) {
+export const AdminController = {
+  async create(req: Request, res: Response) {
     try {
       const { name, email, password, role } = req.body as any;
       if (!name || !email || !password) {
@@ -58,16 +30,30 @@ export const AuthController = {
     }
   },
 
-  async updateUser(req: Request, res: Response) {
+  async list(_req: Request, res: Response) {
+    const users = await (AuthRepository.findAll as any)();
+    return res.status(200).json({ ok: true, users });
+  },
+
+  async get(req: Request, res: Response) {
+    const { id } = req.params;
+    const user = await AuthRepository.findById(id as string);
+    if (!user) return res.status(404).json({ ok: false, message: "User not found" });
+    return res.status(200).json({ ok: true, user });
+  },
+
+  async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const body = req.body as any;
       if ((req as any).file) {
         body.image = (req as any).file.filename;
       }
+      // don't allow password update here unless explicitly provided
       if (body.password) {
         body.password = await bcrypt.hash(body.password, 10);
       }
+
       const updated = await AuthRepository.updateUser(id as string, body as any);
       if (!updated) return res.status(404).json({ ok: false, message: "User not found" });
       return res.status(200).json({ ok: true, user: updated });
@@ -75,4 +61,13 @@ export const AuthController = {
       return res.status(500).json({ ok: false, message: "Server error", err });
     }
   },
+
+  async remove(req: Request, res: Response) {
+    const { id } = req.params;
+    const deleted = await AuthRepository.deleteUser(id as string);
+    if (!deleted) return res.status(404).json({ ok: false, message: "User not found" });
+    return res.status(200).json({ ok: true, message: "User deleted" });
+  },
 };
+
+export default AdminController;
