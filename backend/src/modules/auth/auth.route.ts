@@ -13,4 +13,7 @@ router.post("/user", uploadSingle("image"), AuthController.createUser);
 // Update user (allow image upload)
 router.put("/:id", uploadSingle("image"), AuthController.updateUser);
 
+// Get user by id (for profile fetching)
+router.get("/:id", AuthController.getUser);
+
 export default router;

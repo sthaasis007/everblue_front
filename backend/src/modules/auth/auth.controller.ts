@@ -58,6 +58,17 @@ export const AuthController = {
     }
   },
 
+  async getUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const user = await AuthRepository.findById(id as string);
+      if (!user) return res.status(404).json({ ok: false, message: "User not found" });
+      return res.status(200).json({ ok: true, user });
+    } catch (err) {
+      return res.status(500).json({ ok: false, message: "Server error", err });
+    }
+  },
+
   async updateUser(req: Request, res: Response) {
     try {
       const { id } = req.params;
