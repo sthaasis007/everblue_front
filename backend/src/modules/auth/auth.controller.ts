@@ -86,4 +86,25 @@ export const AuthController = {
       return res.status(500).json({ ok: false, message: "Server error", err });
     }
   },
+
+  async deleteUser(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const currentUser = (req as any).user as { sub?: string; role?: string } | undefined;
+
+      if (!currentUser?.sub) {
+        return res.status(401).json({ ok: false, message: "Unauthorized" });
+      }
+
+      if (currentUser.role !== "admin" && currentUser.sub !== id) {
+        return res.status(403).json({ ok: false, message: "Forbidden" });
+      }
+
+      const deleted = await AuthRepository.deleteUser(id as string);
+      if (!deleted) return res.status(404).json({ ok: false, message: "User not found" });
+      return res.status(200).json({ ok: true, message: "User deleted" });
+    } catch (err) {
+      return res.status(500).json({ ok: false, message: "Server error", err });
+    }
+  },
 };

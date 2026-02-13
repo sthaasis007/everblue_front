@@ -1,8 +1,15 @@
 export default function Hero() {
   return (
     <section className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-8 md:grid-cols-2 md:items-center">
-      {/* Big image placeholder */}
-      <div className="h-[320px] w-full rounded-3xl bg-red-500/80" />
+      <div className="w-full">
+        <div className="aspect-[4/2] w-full overflow-hidden rounded-3xl border border-slate-00 bg-white">
+          <img
+            src="/images/dashpic.png"
+            alt="Dashboard hero"
+            className="h-full w-full object-contain object-center"
+          />
+        </div>
+      </div>
 
       <div className="space-y-4">
         <h1 className="text-4xl font-bold leading-tight text-slate-900">

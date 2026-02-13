@@ -1,8 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./UserProfile.module.css";
 
 export default function UserProfile() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -205,10 +207,48 @@ export default function UserProfile() {
       setImage(null);
       setImagePreview(null);
 
-      setTimeout(() => setSuccess(""), 3000);
+      setTimeout(() => {
+        setSuccess("");
+        window.location.reload();
+      }, 800);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       console.error("Error updating image:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const stored = localStorage.getItem("user");
+      const userId = stored ? JSON.parse(stored)._id || JSON.parse(stored).id : null;
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      const res = await fetch(`/api/auth/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete account");
+      }
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/login");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsSaving(false);
     }
@@ -366,13 +406,15 @@ export default function UserProfile() {
 
         {/* Delete Account */}
         <div className={styles.deleteSection}>
-          <button className={styles.deleteBtn}>Delete Account</button>
+          <button className={styles.deleteBtn} onClick={handleDeleteAccount} disabled={isSaving}>
+            Delete Account
+          </button>
         </div>
       </div>
     </div>
   );
 }
 function buildImageUrl(filename: any): React.SetStateAction<string | null> {
-    throw new Error("Successfully updated user image");
+  return null;
 }
 
