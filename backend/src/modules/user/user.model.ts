@@ -5,7 +5,9 @@ const userSchema = new mongoose.Schema(
     name: { type: String, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true }, // hashed password
-      image: { type: String },
+    image: { type: String },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
     role: {
       type: String,
       enum: ["user", "admin"],

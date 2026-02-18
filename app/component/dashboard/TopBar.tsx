@@ -2,10 +2,20 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 
 export default function TopBar() {
   const router = useRouter();
-  const isLoggedIn = !!Cookies.get("token");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Set isLoggedIn only after client-side hydration
+  useEffect(() => {
+    // Check both cookies and localStorage for token
+    const token = Cookies.get("token") || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+    setIsLoggedIn(!!token);
+    setHydrated(true);
+  }, []);
 
   const handleProfileClick = () => {
     if (isLoggedIn) {
@@ -16,7 +26,7 @@ export default function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-20 border-b bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <div className="flex items-center text-slate-900 gap-8">
           <Link href="/auth/dashboard" className="text-lg font-bold">
@@ -37,20 +47,23 @@ export default function TopBar() {
             className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
             Profile
           </button>
-          {isLoggedIn && (
+          {hydrated && isLoggedIn && (
             <button 
               onClick={() => {
                 Cookies.remove("token");
                 Cookies.remove("user");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                setIsLoggedIn(false);
                 router.push("/login");
               }}
               className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
               Logout
             </button>
           )}
-          <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
+          <Link href="/favorites" className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
             Favorite
-          </button>
+          </Link>
           <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
             Cart
           </button>

@@ -34,6 +34,9 @@ export default function ProductManagement() {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -80,6 +83,17 @@ export default function ProductManagement() {
       return a.displayOrder - b.displayOrder;
     });
   }, [products]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage((prevPage) => Math.min(prevPage, totalPages));
+  }, [totalPages]);
+
+  const pagedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return sortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [sortedProducts, currentPage]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -366,7 +380,7 @@ export default function ProductManagement() {
           </thead>
           <tbody>
             {sortedProducts.length > 0 ? (
-              sortedProducts.map((product) => (
+              pagedProducts.map((product) => (
                 <tr key={product._id}>
                   <td>
                     <div className={styles.productCell}>
@@ -430,6 +444,33 @@ export default function ProductManagement() {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className={styles.paginationRow}>
+        <div className={styles.paginationInfo}>
+          Showing {pagedProducts.length} of {sortedProducts.length} products
+        </div>
+        <div className={styles.paginationControls}>
+          <button
+            type="button"
+            className={styles.pageButton}
+            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          <span className={styles.pageText}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            type="button"
+            className={styles.pageButton}
+            onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ export default function EditUserForm({ userId }: EditUserFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
   });
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export default function EditUserForm({ userId }: EditUserFormProps) {
           setFormData({
             name: user.name || "",
             email: user.email || "",
+            password: "",
           });
           if (user.image) {
             setCurrentImage(user.image);
@@ -96,6 +98,9 @@ export default function EditUserForm({ userId }: EditUserFormProps) {
       const fd = new FormData();
       fd.append("name", formData.name);
       fd.append("email", formData.email);
+      if (formData.password.trim()) {
+        fd.append("password", formData.password.trim());
+      }
       if (image) fd.append("image", image);
 
       const response = await fetch(`/api/admin/users/${userId}`, {
@@ -162,6 +167,21 @@ export default function EditUserForm({ userId }: EditUserFormProps) {
             className={styles.input}
             placeholder="Enter user email"
             required
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="password" className={styles.label}>
+            New Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            className={styles.input}
+            placeholder="Leave blank to keep current password"
           />
         </div>
 

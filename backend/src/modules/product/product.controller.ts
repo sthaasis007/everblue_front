@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ProductModel } from "./product.model";
+import { deleteUploadFile } from "../../utils/file";
 
 const ProductController = {
   async create(req: Request, res: Response) {
@@ -56,6 +57,8 @@ const ProductController = {
       const { name, price, description, placements, placement, displayOrder, available } = req.body as any;
       const updatePayload: Record<string, any> = {};
 
+      const existing = await ProductModel.findById(id).lean();
+
       if (name !== undefined) updatePayload.name = name;
       if (price !== undefined) {
         const numericPrice = Number(price);
@@ -83,6 +86,11 @@ const ProductController = {
 
       const updated = await ProductModel.findByIdAndUpdate(id, updatePayload, { new: true }).lean();
       if (!updated) return res.status(404).json({ ok: false, message: "Product not found" });
+
+      if (image && existing?.image && existing.image !== image) {
+        await deleteUploadFile(existing.image);
+      }
+
       return res.status(200).json({ ok: true, product: updated });
     } catch (err) {
       return res.status(500).json({ ok: false, message: "Server error", err });
@@ -94,6 +102,11 @@ const ProductController = {
       const { id } = req.params;
       const deleted = await ProductModel.findByIdAndDelete(id).lean();
       if (!deleted) return res.status(404).json({ ok: false, message: "Product not found" });
+
+      if (deleted.image) {
+        await deleteUploadFile(deleted.image);
+      }
+
       return res.status(200).json({ ok: true, message: "Product deleted" });
     } catch (err) {
       return res.status(500).json({ ok: false, message: "Server error", err });

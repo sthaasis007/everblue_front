@@ -401,6 +401,50 @@
   color: var(--text-secondary);
 }
 
+.paginationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 0 4px;
+}
+
+.paginationInfo {
+  color: var(--text-secondary);
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pageButton {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+  background-color: rgba(255, 68, 68, 0.1);
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageText {
+  color: var(--text-secondary);
+}
+
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;
@@ -412,5 +456,10 @@
 
   .buttonRow {
     flex-direction: column;
+  }
+
+  .paginationRow {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import { registerDto, loginDto } from "./auth.dto";
+import { registerDto, loginDto, forgotPasswordDto, resetPasswordDto } from "./auth.dto";
 import { AuthService } from "./auth.service";
 import bcrypt from "bcryptjs";
 import { AuthRepository } from "./auth.repository";
+import { deleteUploadFile } from "../../utils/file";
 
 export const AuthController = {
   async register(req: Request, res: Response) {
@@ -28,6 +29,32 @@ export const AuthController = {
     }
 
     const result = await AuthService.login(parsed.data);
+    return res.status(result.status).json(result);
+  },
+
+  async forgotPassword(req: Request, res: Response) {
+    const parsed = forgotPasswordDto.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: parsed.error.flatten().fieldErrors,
+      });
+    }
+
+    const result = await AuthService.requestPasswordReset(parsed.data);
+    return res.status(result.status).json(result);
+  },
+
+  async resetPassword(req: Request, res: Response) {
+    const parsed = resetPasswordDto.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: parsed.error.flatten().fieldErrors,
+      });
+    }
+
+    const result = await AuthService.resetPassword(parsed.data);
     return res.status(result.status).json(result);
   },
 
@@ -73,6 +100,7 @@ export const AuthController = {
     try {
       const { id } = req.params;
       const body = req.body as any;
+      const existing = await AuthRepository.findById(id as string);
       if ((req as any).file) {
         body.image = (req as any).file.filename;
       }
@@ -81,6 +109,11 @@ export const AuthController = {
       }
       const updated = await AuthRepository.updateUser(id as string, body as any);
       if (!updated) return res.status(404).json({ ok: false, message: "User not found" });
+
+      if (body.image && existing?.image && existing.image !== body.image) {
+        await deleteUploadFile(existing.image);
+      }
+
       return res.status(200).json({ ok: true, user: updated });
     } catch (err) {
       return res.status(500).json({ ok: false, message: "Server error", err });
@@ -102,6 +135,11 @@ export const AuthController = {
 
       const deleted = await AuthRepository.deleteUser(id as string);
       if (!deleted) return res.status(404).json({ ok: false, message: "User not found" });
+
+      if ((deleted as any).image) {
+        await deleteUploadFile((deleted as any).image);
+      }
+
       return res.status(200).json({ ok: true, message: "User deleted" });
     } catch (err) {
       return res.status(500).json({ ok: false, message: "Server error", err });

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { AuthRepository } from "../auth/auth.repository";
+import { deleteUploadFile } from "../../utils/file";
 
 export const AdminController = {
   async create(req: Request, res: Response) {
@@ -46,6 +47,7 @@ export const AdminController = {
     try {
       const { id } = req.params;
       const body = req.body as any;
+      const existing = await AuthRepository.findById(id as string);
       if ((req as any).file) {
         body.image = (req as any).file.filename;
       }
@@ -56,6 +58,11 @@ export const AdminController = {
 
       const updated = await AuthRepository.updateUser(id as string, body as any);
       if (!updated) return res.status(404).json({ ok: false, message: "User not found" });
+
+      if (body.image && existing?.image && existing.image !== body.image) {
+        await deleteUploadFile(existing.image);
+      }
+
       return res.status(200).json({ ok: true, user: updated });
     } catch (err) {
       return res.status(500).json({ ok: false, message: "Server error", err });
@@ -66,6 +73,11 @@ export const AdminController = {
     const { id } = req.params;
     const deleted = await AuthRepository.deleteUser(id as string);
     if (!deleted) return res.status(404).json({ ok: false, message: "User not found" });
+
+    if ((deleted as any).image) {
+      await deleteUploadFile((deleted as any).image);
+    }
+
     return res.status(200).json({ ok: true, message: "User deleted" });
   },
 };
