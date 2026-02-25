@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/app/lib/useCart";
 import TopBar from "@/app/component/dashboard/TopBar";
 import Footer from "@/app/component/dashboard/Footer";
@@ -8,6 +9,7 @@ import styles from "./Cart.module.css";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function CartPage() {
+  const router = useRouter();
   const { cartItems, isLoading, removeFromCart, updateQuantity, calculateTotal } = useCart();
   const [hydrated, setHydrated] = useState(false);
 
@@ -137,7 +139,12 @@ export default function CartPage() {
               <span className={styles.totalPrice}>${total.toFixed(2)}</span>
             </div>
 
-            <button className={styles.checkoutBtn}>Proceed to Checkout</button>
+            <button 
+              onClick={() => router.push("/payment")}
+              className={styles.checkoutBtn}
+            >
+              Proceed to Checkout
+            </button>
           </div>
         </div>
       </div>
