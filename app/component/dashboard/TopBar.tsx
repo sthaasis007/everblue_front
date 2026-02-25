@@ -3,11 +3,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
+import { useCart } from "@/app/lib/useCart";
 
 export default function TopBar() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const { getCartCount } = useCart();
 
   // Set isLoggedIn only after client-side hydration
   useEffect(() => {
@@ -64,9 +66,14 @@ export default function TopBar() {
           <Link href="/favorites" className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
             Favorite
           </Link>
-          <button className="rounded-md border px-3 py-1.5 hover:bg-slate-50">
-            Cart
-          </button>
+          <Link href="/cart" className="rounded-md border px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2">
+            🛒 Cart
+            {hydrated && getCartCount() > 0 && (
+              <span className="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs font-bold">
+                {getCartCount()}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
     </header>

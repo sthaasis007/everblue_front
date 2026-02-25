@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import styles from "./ProductDetail.module.css";
 import { useFavorites } from "@/app/lib/useFavorites";
+import { useCart } from "@/app/lib/useCart";
 
 interface Product {
   _id: string;
@@ -24,6 +25,7 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     setHydrated(true);
@@ -66,7 +68,13 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
 
   const handleAddToCart = () => {
     if (!product) return;
-    // TODO: Implement cart functionality
+    addToCart({
+      _id: product._id,
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      image: product.image,
+    });
     alert(`Added "${product.name}" to cart`);
   };
 
